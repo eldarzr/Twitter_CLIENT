@@ -155,6 +155,14 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         //sendBytes(str.c_str(),str.length());
         num = 4;*/
     }
+    else if(str.find("BLOCK") == 0) {
+        num = 12;
+        char* chh = new char();
+        shortToBytes(num,chh);
+        sendBytes(chh,2);
+        str = str.substr(6, str.length() - 6);
+        str = str + "\0";
+    }
     //char *c = const_cast<char *>(str.c_str());
     //shortToBytes(num,c);
     bool result=sendBytes(str.c_str(),str.length());
