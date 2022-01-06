@@ -107,6 +107,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
         if(s == 3)
             shouldTerminate = true;
     }
+    else if(s==9){
+        //s = bytesToShort(const_cast<char *>(frame.c_str()));
+        //std::cout << s << std::endl;
+        frame = frame.substr(2, frame.length()-2);
+        std::cout << frame << std::endl;
+    }
+
     return true;
 }
  
@@ -135,6 +142,14 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         str = str.substr(6, str.length() - 6);
         //str = str + "\0";
         num = 3;
+        char* chh = new char();
+        shortToBytes(num,chh);
+        sendBytes(chh,2);
+    }
+    else if(str.find("POST") == 0) {
+        str = str.substr(5, str.length() - 5);
+        //str = str + "\0";
+        num = 5;
         char* chh = new char();
         shortToBytes(num,chh);
         sendBytes(chh,2);
