@@ -147,6 +147,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         sendBytes(chh,2);
     }
     else if(str.find("POST") == 0) {
+        std::replace(str.begin(), str.end(), '\0', ' ');
         str = str.substr(5, str.length() - 5);
         //str = str + "\0";
         num = 5;
