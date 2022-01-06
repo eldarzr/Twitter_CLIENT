@@ -97,7 +97,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     if(s == 10 || s == 11){
         s = bytesToShort(const_cast<char *>(frame.c_str()));
         std::cout << s << std::endl;
-        frame = frame.substr(2, frame.length()-2);
+        if(s == 7 || s == 8){
+            for(int i =0; i<4; i++) {
+                frame = frame.substr(2, frame.length() - 2);
+                s = bytesToShort(const_cast<char *>(frame.c_str()));
+                std::cout << s << std::endl;
+            }
+        }
         if(s == 3)
             shouldTerminate = true;
     }
@@ -161,6 +167,22 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         shortToBytes(num,chh);
         sendBytes(chh,2);
         str = str.substr(6, str.length() - 6);
+        str = str + "\0";
+    }
+    else if(str.find("LOGSTAT") == 0) {
+        num = 7;
+        char* chh = new char();
+        shortToBytes(num,chh);
+        sendBytes(chh,2);
+        str = "";
+        //str = str + "\0";
+    }
+    else if(str.find("STAT") == 0) {
+        num = 8;
+        char* chh = new char();
+        shortToBytes(num,chh);
+        sendBytes(chh,2);
+        str = str.substr(5, str.length() - 5);
         str = str + "\0";
     }
     //char *c = const_cast<char *>(str.c_str());
