@@ -1,3 +1,4 @@
+/*
 #include <stdlib.h>
 #include <connectionHandler.h>
 #include <thread>
@@ -5,9 +6,11 @@
 #include "ReadTask.cpp"
 #include "WriteTask.cpp"
 
+*/
 /**
 * This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
-*/
+*//*
+
 //bool shouldTerminate = false;
 
 extern bool shouldTerminate;
@@ -15,6 +18,7 @@ extern bool shouldTerminate;
 int main (int argc, char *argv[]) {
 
 
+*/
 /*    bool flg = true;
     while (flg){
         const short bufsize = 1024;
@@ -32,7 +36,8 @@ int main (int argc, char *argv[]) {
         std::cout << s << std::endl;
         if(num == 0)
             flg = false;
-    }*/
+    }*//*
+
 
     if (argc < 3) {
         std::cerr << "Usage: " << argv[0] << " host port" << std::endl << std::endl;
@@ -65,3 +70,4 @@ int main (int argc, char *argv[]) {
 
     return 0;
 }
+*/

@@ -92,9 +92,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
         return false;
     }
     short s = bytesToShort(const_cast<char *>(frame.c_str()));
-    std::cout << s << std::endl;
+    //std::cout << s << std::endl;
     frame = frame.substr(2, frame.length()-2);
-    if(s == 10 || s == 11){
+    if(s == 10)
+        ack(frame,delimiter);
+    else if(s == 11)
+        error(frame,delimiter);
+/*    if(s == 10 || s == 11){
         s = bytesToShort(const_cast<char *>(frame.c_str()));
         std::cout << s << std::endl;
         if(s == 7 || s == 8){
@@ -106,12 +110,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
         }
         if(s == 3)
             shouldTerminate = true;
-    }
+    }*/
     else if(s==9){
+        notification(frame,delimiter);
         //s = bytesToShort(const_cast<char *>(frame.c_str()));
         //std::cout << s << std::endl;
-        frame = frame.substr(2, frame.length()-2);
-        std::cout << frame << std::endl;
+/*        frame = frame.substr(2, frame.length()-2);
+        std::cout << frame << std::endl;*/
     }
 
     return true;
@@ -124,17 +129,17 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
     short num = 0;
     if(str.find("REGISTER") == 0) {
         num = 1;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
         str = str.substr(9, str.length() - 9);
         str = str + "\0";
     }
     else if(str.find("LOGIN") == 0) {
         num = 2;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
         str = str.substr(6, str.length() - 6);
         str = str + "\0";
     }
@@ -142,18 +147,18 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         str = str.substr(6, str.length() - 6);
         //str = str + "\0";
         num = 3;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
     }
     else if(str.find("POST") == 0) {
         std::replace(str.begin(), str.end(), '\0', ' ');
         str = str.substr(5, str.length() - 5);
         //str = str + "\0";
         num = 5;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
     }
     else if(str.find("FOLLOW") == 0) {
         str = str.substr(7, str.length() - 7);
@@ -163,10 +168,10 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         char* chh = new char();
         shortToBytes(num,chh);
         sendBytes(chh,2);
-        chh = new char();
+/*        chh = new char();*/
         num = str[0] - '0';
-        shortToBytes(num,chh);
-        sendBytes(chh,2);
+/*        shortToBytes(num,chh);
+        sendBytes(chh,2);*/
         //sendBytes(";",1);
         str = str.substr(2, str.length() - 2);
 
@@ -179,28 +184,31 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
     }
     else if(str.find("BLOCK") == 0) {
         num = 12;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
         str = str.substr(6, str.length() - 6);
         str = str + "\0";
     }
     else if(str.find("LOGSTAT") == 0) {
         num = 7;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
         str = "";
         //str = str + "\0";
     }
     else if(str.find("STAT") == 0) {
         num = 8;
-        char* chh = new char();
+/*        char* chh = new char();
         shortToBytes(num,chh);
-        sendBytes(chh,2);
+        sendBytes(chh,2);*/
         str = str.substr(5, str.length() - 5);
         str = str + "\0";
     }
+    char* chh = new char();
+    shortToBytes(num,chh);
+    sendBytes(chh,2);
     //char *c = const_cast<char *>(str.c_str());
     //shortToBytes(num,c);
     bool result=sendBytes(str.c_str(),str.length());
@@ -229,4 +237,39 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr)
 {
     bytesArr[0] = ((num >> 8) & 0xFF);
     bytesArr[1] = (num & 0xFF);
+}
+
+void ConnectionHandler::ack(std::string& frame, char delimiter) {
+    std::cout << "ACK ";
+    short s = bytesToShort(const_cast<char *>(frame.c_str()));
+    std::cout << s;
+    frame = frame.substr(2, frame.length() - 2);
+
+    if (s == 7 || s == 8) {
+        for (int i = 0; i < 4; i++) {
+            frame = frame.substr(2, frame.length() - 2);
+            s = bytesToShort(const_cast<char *>(frame.c_str()));
+            std::cout << " " << s;
+        }
+    }
+    if (s == 3)
+        shouldTerminate = true;
+    std::cout << std::endl;
+}
+
+void ConnectionHandler::error(std::string& frame, char delimiter){
+    std::cout << "ERROR ";
+    short s = bytesToShort(const_cast<char *>(frame.c_str()));
+    std::cout << s << std::endl;
+}
+
+void ConnectionHandler::notification(std::string& frame, char delimiter){
+    std::cout << "NOTIFICATION ";
+    if(frame[0] == '\0')
+        std::cout << "public ";
+    else if(frame[0] == '\1')
+        std::cout << "PM ";
+    frame = frame.substr(1, frame.length()-1);
+    std::replace(frame.begin(), frame.end(), '\0', ' ');
+    std::cout << frame << std::endl;
 }
