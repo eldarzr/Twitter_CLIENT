@@ -2,65 +2,23 @@
 // Created by spl211 on 07/01/2022.
 //
 
+
 #ifndef BOOST_ECHO_CLIENT_BIDIPROTOCOL_H
 #define BOOST_ECHO_CLIENT_BIDIPROTOCOL_H
+
+#include "connectionHandler.h"
+#include <boost/asio.hpp>
+
 using boost::asio::ip::tcp;
 
 class BidiProtocol {
 public:
-    void process(const std::string& frame, char delimiter);
+    void send(const std::string& frame, char delimiter);
 
 
 private:
-    const std::string host_;
-    const short port_;
-    boost::asio::io_service io_service_;   // Provides core I/O functionality
-    tcp::socket socket_;
-
+    connectionHandler _connectionHandler;
 public:
-    BidiProtocol();
-    virtual ~ConnectionHandler();
-
-    // Connect to the remote machine
-    bool connect();
-
-    // Read a fixed number of bytes from the server - blocking.
-    // Returns false in case the connection is closed before bytesToRead bytes can be read.
-    bool getBytes(char bytes[], unsigned int bytesToRead);
-
-    // Send a fixed number of bytes from the client - blocking.
-    // Returns false in case the connection is closed before all the data is sent.
-    bool sendBytes(const char bytes[], int bytesToWrite);
-
-    // Read an ascii line from the server
-    // Returns false in case connection closed before a newline can be read.
-    bool getLine(std::string& line);
-
-    // Send an ascii line from the server
-    // Returns false in case connection closed before all the data is sent.
-    bool sendLine(std::string& line);
-
-    // Get Ascii data from the server until the delimiter character
-    // Returns false in case connection closed before null can be read.
-    bool getFrameAscii(std::string& frame, char delimiter);
-
-    // Send a message to the remote host.
-    // Returns false in case connection is closed before all the data is sent.
-    bool sendFrameAscii(const std::string& frame, char delimiter);
-
-    // Close down the connection properly.
-    void close();
-
-    short bytesToShort(char* bytesArr);
-
-    void shortToBytes(short num, char* bytesArr);
-
-    ConnectionHandler(const ConnectionHandler& handler);
-
-    void ack(std::string &frame, char delimiter);
-
-    void error(std::string &frame, char delimiter);
-
-    void notification(std::string &frame, char delimiter);
+    BidiProtocol(connectionHandler _connectionHandler);
 };
 #endif //BOOST_ECHO_CLIENT_BIDIPROTOCOL_H

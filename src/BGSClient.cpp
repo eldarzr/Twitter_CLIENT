@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <connectionHandler.h>
+#include <writeTask.h>
 #include <thread>
 #include <mutex>
-#include "ReadTask.cpp"
-#include "WriteTask.cpp"
+#include <readTask.h>
 
 /**
 * This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
