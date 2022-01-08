@@ -1,5 +1,7 @@
 #include <connectionHandler.h>
- 
+#include <stdlib.h>
+
+
 using boost::asio::ip::tcp;
 
 using std::cin;
@@ -144,6 +146,16 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         std::replace(str.begin(), str.end(), '\0', ' ');
         str = str.substr(5, str.length() - 5);
         num = 5;
+    }
+    else if(str.find("PM") == 0) {
+        std::replace(str.begin(), str.end(), '\0', ' ');
+        str = str.substr(3, str.length() - 3);
+        std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::string s(30, '\0');
+        std::strftime(&s[0], s.size(), "%d-%m-%Y", std::localtime(&now));
+        s = s.substr(0,10);
+        str = str +s+"\0";
+        num = 6;
     }
     else if(str.find("FOLLOW") == 0) {
         str = str.substr(7, str.length() - 7);

@@ -13,8 +13,6 @@
 extern bool shouldTerminate;
 
 int main (int argc, char *argv[]) {
-
-
 /*    bool flg = true;
     while (flg){
         const short bufsize = 1024;
