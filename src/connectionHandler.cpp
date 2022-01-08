@@ -141,7 +141,10 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         str = str.substr(6, str.length() - 6);
         //str = str + "\0";
         back = true;
-        captcha = 1;
+        if(str[str.length()-1] == '1')
+            captcha = 1;
+        else captcha = 0;
+        str = str.substr(0, str.length() - 2);
     }
     else if(str.find("LOGOUT") == 0) {
         str = str.substr(6, str.length() - 6);
@@ -200,7 +203,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
     if(!result) return false;
     if(back) sendBytes("\0",1);
     if(captcha == 1) sendBytes("\1",1);
-    else if (captcha == 0) sendBytes("\0",1);
+    else if(captcha == 0)  sendBytes("\0",1);
     return sendBytes(";",1);
 }
 
@@ -257,7 +260,7 @@ void ConnectionHandler::notification(std::string& frame, char delimiter){
         std::cout << "public ";
     else if(frame[0] == '\1')
         std::cout << "PM ";
-    frame = frame.substr(1, frame.length()-1);
+    frame = frame.substr(1, frame.length()-3);
     std::replace(frame.begin(), frame.end(), '\0', ' ');
     std::cout << frame << std::endl;
 }
