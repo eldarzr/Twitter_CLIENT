@@ -128,15 +128,20 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
     std::string str(frame);
     std::replace(str.begin(), str.end(), ' ', '\0');
     short num = 0;
+    int captcha = -1;
+    bool back = false;
     if(str.find("REGISTER") == 0) {
         num = 1;
         str = str.substr(9, str.length() - 9);
-        str = str + "\0";
+        //str = str + "\0";
+        back = true;
     }
     else if(str.find("LOGIN") == 0) {
         num = 2;
         str = str.substr(6, str.length() - 6);
-        str = str + "\0";
+        //str = str + "\0";
+        back = true;
+        captcha = 1;
     }
     else if(str.find("LOGOUT") == 0) {
         str = str.substr(6, str.length() - 6);
@@ -151,7 +156,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
         std::replace(str.begin(), str.end(), '\0', ' ');
         str = str.substr(3, str.length() - 3);
         std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::string s(30, '\0');
+gi        std::string s(30, '\0');
         std::strftime(&s[0], s.size(), "%d-%m-%Y", std::localtime(&now));
         s = s.substr(0,10);
         str = str +s+"\0";
@@ -171,7 +176,8 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
     else if(str.find("BLOCK") == 0) {
         num = 12;
         str = str.substr(6, str.length() - 6);
-        str = str + "\0";
+        //str = str + "\0";
+        back = true;
     }
     else if(str.find("LOGSTAT") == 0) {
         num = 7;
@@ -180,13 +186,17 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
     else if(str.find("STAT") == 0) {
         num = 8;
         str = str.substr(5, str.length() - 5);
-        str = str + "\0";
+        //str = str + "\0";
+        back = true;
     }
     char* chh = new char();
     shortToBytes(num,chh);
     sendBytes(chh,2);
     bool result=sendBytes(str.c_str(),str.length());
     if(!result) return false;
+    if(back) sendBytes("\0",1);
+    if(captcha == 1) sendBytes("\1",1);
+    else if (captcha == 0) sendBytes("\0",1);
     return sendBytes(";",1);
 }
 
@@ -221,8 +231,8 @@ void ConnectionHandler::ack(std::string& frame, char delimiter) {
 
     if (s == 7 || s == 8) {
         for (int i = 0; i < 4; i++) {
-            frame = frame.substr(2, frame.length() - 2);
             s = bytesToShort(const_cast<char *>(frame.c_str()));
+            frame = frame.substr(2, frame.length() - 2);
             std::cout << " " << s;
         }
     }
